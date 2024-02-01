@@ -78,7 +78,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
     def init_gateway(self, region, force=False, require_manual_deletion=False):
 
         if self.hide_ip:
-            ip_val = f"method.request.header.'{ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))}'"
+            ip_val = f"'{ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))}'"
         else:
             ip_val = "method.request.header.X-My-X-Forwarded-For"
         
@@ -161,7 +161,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
             connectionType="INTERNET",
             requestParameters={
                 "integration.request.path.proxy": "method.request.path.proxy",
-                "integration.request.header.X-Forwarded-For": ip_val
+                "integration.request.header.X-Forwarded-For": "1.1.1.1"
             }
         )
 
@@ -186,7 +186,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
             connectionType="INTERNET",
             requestParameters={
                 "integration.request.path.proxy": "method.request.path.proxy",
-                "integration.request.header.X-Forwarded-For": ip_val
+                "integration.request.header.X-Forwarded-For": "'1.1.1.1'"
             }
         )
 
