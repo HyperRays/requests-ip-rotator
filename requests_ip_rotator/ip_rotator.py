@@ -63,15 +63,16 @@ class ApiGateway(rq.adapters.HTTPAdapter):
         request.url = "https://" + endpoint + "/ProxyStage/" + site_path
         # Replace host with endpoint host
         request.headers["Host"] = endpoint
-        # Auto generate random X-Forwarded-For if doesn't exist.
-        # Otherwise AWS forwards true IP address in X-Forwarded-For header
-        x_forwarded_for = request.headers.get("X-Forwarded-For")
-        if x_forwarded_for is None:
-            x_forwarded_for = ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))
-        # Move "X-Forwarded-For" to "X-My-X-Forwarded-For". This then gets converted back
-        # within the gateway.
-        request.headers.pop("X-Forwarded-For", None)
-        request.headers["X-My-X-Forwarded-For"] = x_forwarded_for
+        if not self.hide_ip:
+            # Auto generate random X-Forwarded-For if doesn't exist.
+            # Otherwise AWS forwards true IP address in X-Forwarded-For header
+            x_forwarded_for = request.headers.get("X-Forwarded-For")
+            if x_forwarded_for is None:
+                x_forwarded_for = ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))
+            # Move "X-Forwarded-For" to "X-My-X-Forwarded-For". This then gets converted back
+            # within the gateway.
+            request.headers.pop("X-Forwarded-For", None)
+            request.headers["X-My-X-Forwarded-For"] = x_forwarded_for
         # Run original python requests send function
         return super().send(request, stream, timeout, verify, cert, proxies)
 
