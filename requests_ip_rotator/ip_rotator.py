@@ -161,7 +161,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
             connectionType="INTERNET",
             requestParameters={
                 "integration.request.path.proxy": "method.request.path.proxy",
-                "integration.request.header.X-Forwarded-For": "1.1.1.1"
+                "integration.request.header.X-Forwarded-For": "'1.1.1.1'"
             }
         )
 
