@@ -78,7 +78,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
     def init_gateway(self, region, force=False, require_manual_deletion=False):
 
         if self.hide_ip:
-            ip_val = f"'{ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))}'"
+            ip_val = f"''{ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))}''"
         else:
             ip_val = "method.request.header.X-My-X-Forwarded-For"
         
@@ -175,7 +175,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
                 "method.request.header.X-My-X-Forwarded-For": True
             }
         )
-
+        
         awsclient.put_integration(
             restApiId=create_api_response["id"],
             resourceId=create_resource_response["id"],
