@@ -32,8 +32,9 @@ ALL_REGIONS = EXTRA_REGIONS + [
 # Inherits from HTTPAdapter so that we can edit each request before sending
 class ApiGateway(rq.adapters.HTTPAdapter):
 
-    def __init__(self, site, regions=DEFAULT_REGIONS, access_key_id=None, access_key_secret=None, verbose=True, **kwargs):
+    def __init__(self, site, regions=DEFAULT_REGIONS, access_key_id=None, access_key_secret=None, verbose=True, hide_ip=True, **kwargs):
         super().__init__(**kwargs)
+        self.hide_ip = hide_ip
         # Set simple params from constructor
         if site.endswith("/"):
             self.site = site[:-1]
@@ -75,6 +76,12 @@ class ApiGateway(rq.adapters.HTTPAdapter):
         return super().send(request, stream, timeout, verify, cert, proxies)
 
     def init_gateway(self, region, force=False, require_manual_deletion=False):
+
+        if self.hide_ip:
+            ip_val = ipaddress.IPv4Address._string_from_ip_int(randint(0, MAX_IPV4))
+        else:
+            ip_val = "method.request.header.X-My-X-Forwarded-For"
+        
         # Init client
         session = boto3.session.Session()
         awsclient = session.client(
@@ -154,7 +161,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
             connectionType="INTERNET",
             requestParameters={
                 "integration.request.path.proxy": "method.request.path.proxy",
-                "integration.request.header.X-Forwarded-For": "method.request.header.X-My-X-Forwarded-For"
+                "integration.request.header.X-Forwarded-For": ip_val
             }
         )
 
@@ -179,7 +186,7 @@ class ApiGateway(rq.adapters.HTTPAdapter):
             connectionType="INTERNET",
             requestParameters={
                 "integration.request.path.proxy": "method.request.path.proxy",
-                "integration.request.header.X-Forwarded-For": "method.request.header.X-My-X-Forwarded-For"
+                "integration.request.header.X-Forwarded-For": ip_val
             }
         )
 
